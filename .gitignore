@@ -1,5 +1,30 @@
+# Python cache files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+
+# Python virtual environments
 .venv/
+venv/
+env/
+
+# PyCharm and IDE settings
+.idea/
+*.iml
+
+# Application logs
 logs/*.log
+logs/*.log.*
+
+# Generated reports
 reports/
+
+# Testing and coverage files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Operating system files
+.DS_Store
+Thumbs.db
