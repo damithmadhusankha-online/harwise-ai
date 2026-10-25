@@ -54,7 +54,25 @@ def get_weather_forecast(location: str = "polonnaruwa", days: int = 7) -> dict:
         try:
             forecast = _fetch_live(*LOCATIONS[key], days)
             source = "live (Open-Meteo)"
-            CACHE_FILE.write_text(json.dumps({key: forecast}), encoding="utf-8")
+
+            # Preserve existing cached forecasts for other locations.
+            try:
+                cache = (
+                    json.loads(CACHE_FILE.read_text(encoding="utf-8"))
+                    if CACHE_FILE.exists() else {}
+                )
+                if not isinstance(cache, dict):
+                    cache = {}
+            except (OSError, ValueError):
+                cache = {}
+
+            # Update only the requested location.
+            cache[key] = forecast
+            CACHE_FILE.write_text(
+                json.dumps(cache, indent=2),
+                encoding="utf-8"
+            )
+
         except Exception as e:
             log.warning("live weather failed: %s", e)
     if forecast is None and CACHE_FILE.exists():
