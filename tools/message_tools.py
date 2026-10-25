@@ -1,10 +1,14 @@
-
 import re
 from datetime import datetime
 from pathlib import Path
+from uuid import uuid4
 
-from utils.validation import (ValidationError, validate_choice, validate_crop,
-                              validate_positive_float)
+from utils.validation import (
+    ValidationError,
+    validate_choice,
+    validate_crop,
+    validate_positive_float,
+)
 
 REPORT_DIR = Path(__file__).resolve().parent.parent / "reports"
 
@@ -36,40 +40,145 @@ TEMPLATES = {
 }
 
 
-def draft_message(recipient: str, purpose: str, crop: str, kg: float,
-                  language: str = "en", when: str = "soon") -> dict:
+
+def draft_message(
+    recipient: str,
+    purpose: str,
+    crop: str,
+    kg: float,
+    language: str = "en",
+    when: str = "soon",
+) -> dict:
     try:
-        recipient = validate_choice(recipient, ["buyer", "driver"], "recipient")
-        language = validate_choice(language, ["en", "si", "ta"], "language")
+        recipient = validate_choice(
+            recipient, ["buyer", "driver"], "recipient"
+        )
+        language = validate_choice(
+            language, ["en", "si", "ta"], "language"
+        )
         crop = validate_crop(crop)
         kg = validate_positive_float(kg, "kg", 1_000_000)
-        purpose = validate_choice(purpose, sorted({p for (r, p) in TEMPLATES if r == recipient}), "purpose")
-        when = str(when).strip()[:40] or "soon"
-    except ValidationError as e:
-        return {"ok": False, "error": str(e)}
-    tpl = TEMPLATES.get((recipient, purpose))
-    if tpl is None:
-        return {"ok": False, "error": f"No template for recipient={recipient}, purpose={purpose}"}
-    text = tpl[language].format(kg=round(kg), crop=CROP_NAMES[language][crop], when=when)
-    result = {"ok": True, "language": language, "message": text}
+
+        allowed_purposes = sorted(
+            purpose_name
+            for recipient_name, purpose_name in TEMPLATES
+            if recipient_name == recipient
+        )
+        purpose = validate_choice(
+            purpose, allowed_purposes, "purpose"
+        )
+
+        if not isinstance(when, str):
+            raise ValidationError("when must be a string")
+
+        when = " ".join(when.split()) or "soon"
+
+        if len(when) > 40:
+            raise ValidationError(
+                "when must be at most 40 characters"
+            )
+
+    except ValidationError as error:
+        return {"ok": False, "error": str(error)}
+
+    template = TEMPLATES.get((recipient, purpose))
+
+    if template is None:
+        return {
+            "ok": False,
+            "error": (
+                f"No template for recipient={recipient}, "
+                f"purpose={purpose}"
+            ),
+        }
+
+    # Keep decimal quantities when required.
+    quantity = f"{kg:g}"
+
+    message = template[language].format(
+        kg=quantity,
+        crop=CROP_NAMES[language][crop],
+        when=when,
+    )
+
+    result = {
+        "ok": True,
+        "language": language,
+        "message": message,
+    }
+
     if language != "en":
-        result["note"] = "Template-based. Ask a fluent speaker to check it before sending."
+        result["note"] = (
+            "Template-based. Ask a fluent speaker "
+            "to check it before sending."
+        )
+
     return result
+
+
 
 
 def save_plan(title: str, content: str) -> dict:
     if not isinstance(title, str) or not title.strip():
-        return {"ok": False, "error": "title must be a non-empty string"}
+        return {
+            "ok": False,
+            "error": "title must be a non-empty string",
+        }
+
     if not isinstance(content, str) or not content.strip():
-        return {"ok": False, "error": "content must be a non-empty string"}
+        return {
+            "ok": False,
+            "error": "content must be a non-empty string",
+        }
+
+    title = title.strip()
+    content = content.strip()
+
+    if len(title) > 200:
+        return {
+            "ok": False,
+            "error": "title is too long (max 200 characters)",
+        }
+
     if len(content) > 20_000:
-        return {"ok": False, "error": "content is too long (max 20000 characters)"}
-    slug = re.sub(r"[^a-z0-9]+", "-", title.lower()).strip("-")[:40] or "plan"
+        return {
+            "ok": False,
+            "error": "content is too long (max 20000 characters)",
+        }
+
+    # Create a safe, readable filename.
+    slug = re.sub(
+        r"[^a-z0-9]+", "-", title.lower()
+    ).strip("-")[:40] or "plan"
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    unique_id = uuid4().hex[:8]
+
+    filename = f"{timestamp}_{slug}_{unique_id}.md"
+
+    report_text = (
+        f"# {title}\n\n"
+        f"{content}\n\n"
+        "---\n"
+        "Decision support only. Prices change; "
+        "the farmer decides.\n"
+    )
+
     try:
-        REPORT_DIR.mkdir(exist_ok=True)
-        path = REPORT_DIR / f"{datetime.now():%Y%m%d_%H%M%S}_{slug}.md"
-        path.write_text(f"# {title.strip()}\n\n{content.strip()}\n\n---\nDecision support only. Prices change; the farmer decides.\n",
-                        encoding="utf-8")
-    except OSError as e:
-        return {"ok": False, "error": f"Could not save the plan: {e}"}
-    return {"ok": True, "saved_to": str(path)}
+        REPORT_DIR.mkdir(parents=True, exist_ok=True)
+        path = REPORT_DIR / filename
+
+        # Exclusive creation prevents overwriting existing reports.
+        with path.open("x", encoding="utf-8") as file:
+            file.write(report_text)
+
+    except OSError as error:
+        return {
+            "ok": False,
+            "error": f"Could not save the plan: {error}",
+        }
+
+    return {
+        "ok": True,
+        "saved_to": str(path),
+    }
