@@ -82,3 +82,4 @@ Write the function (return `{"ok": True/False, ...}`, validate inputs), then add
 | D.D.A.Nipun | Data layer, validation, price/weather ,messages, logging,|
 
 # harwise-ai
+# harwise-ai
