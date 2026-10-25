@@ -8,23 +8,52 @@ sell, store, and plant across paddy and vegetable crops. All farm data stays on 
 
 ## Setup
 
-```bash
-# 1. Install Ollama from https://ollama.com, then pull a tool-calling model
-ollama pull qwen2.5:7b        # default model
-# Alternatives:
-ollama pull llama3.1:8b
-ollama pull llama3.2
 
-# 2. Python deps
-python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+## Setup
 
-# 3. Run
-python main.py
+1. Install [Ollama](https://ollama.com) and pull a tool-calling model:
 
-# Or run with an alternative model
-python main.py --model llama3.1:8b
-python main.py --model llama3.2
+   ```bash
+   ollama pull qwen2.5:7b
+   ```
+
+   Alternative models:
+
+   ```bash
+   ollama pull llama3.1:8b
+   ollama pull llama3.2
+   ```
+
+2. Create and activate a Python virtual environment:
+
+   **Windows PowerShell:**
+
+   ```powershell
+   python -m venv .venv
+   .\.venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
+   ```
+
+   **Linux/macOS:**
+
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+3. Run Harwise:
+
+   ```bash
+   python main.py
+   ```
+
+   Or select an alternative model:
+
+   ```bash
+   python main.py --model llama3.1:8b
+   python main.py --model llama3.2
+   ```
 
 Commands inside the chat: `reset` clears history, `quit` exits.
 
@@ -71,14 +100,65 @@ tests/             python tests/run_tests.py   (pytest also works)
 2. `data/assumptions.json`: trader discount, drying cost, storage loss, transport. Ask real farmers.
 3. `data/crops.json`: shelf life and yields.
 
+
 ## Adding a tool
 
 Write the function (return `{"ok": True/False, ...}`, validate inputs), then add one schema in
 `tools/registry.py` `TOOL_SCHEMAS` and one entry in `TOOL_FUNCTIONS`.
 
+
 ## Offline mode
 
 `HARWISE_OFFLINE=1` skips the weather network call and uses cached/sample data.
+
+
+## Reliability and Data Validation
+
+Harwise includes validation, error handling, and local data management to improve the reliability of its farming recommendations.
+
+### Price Data Processing
+- Reads historical crop prices from `data/prices.csv`.
+- Validates price records and rejects invalid or non-positive values.
+- Handles duplicate crop/date entries and malformed CSV data.
+- Calculates price trends using validated historical records.
+
+### Weather Data Management
+- Retrieves weather forecasts from Open-Meteo when available.
+- Uses cached or sample weather data when live information is unavailable.
+- Preserves previously cached locations when updating the weather cache.
+- Supports offline weather lookup using `HARWISE_OFFLINE=1`.
+
+### Input Validation
+- Normalizes text inputs and supports recognized crop-name aliases.
+- Validates numeric inputs, including quantities and moisture percentages.
+- Rejects invalid, non-finite, or unsupported input values.
+
+### Message and Report Handling
+- Supports buyer and driver message templates in English, Sinhala, and Tamil.
+- Validates message inputs while preserving decimal quantities.
+- Validates report titles and content before saving.
+- Uses unique report filenames to avoid overwriting existing plans.
+
+### Logging
+- Records application activity for debugging and troubleshooting.
+- Uses rotating log files to limit disk usage.
+- Keeps up to three backup log files, with a maximum of 5 MB per active log file.
+
+### JSON Data Loading
+- Loads crop information and farming assumptions from local JSON files.
+- Detects missing files, malformed JSON, and invalid top-level data structures.
+- Excludes internal metadata fields from the loaded data.
+
+### Testing
+
+Run the project's test suite:
+
+```bash
+python tests/run_tests.py
+```
+
+These improvements strengthen data handling and application reliability. They do not replace the need to verify sample prices, crop assumptions, weather information, or generated recommendations against real local conditions.
+
 
 ## Team
 
