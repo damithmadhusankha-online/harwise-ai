@@ -1,0 +1,11 @@
+{
+  "polonnaruwa": [
+    {"day": 1, "rain_prob": 20, "rain_mm": 1},
+    {"day": 2, "rain_prob": 30, "rain_mm": 3},
+    {"day": 3, "rain_prob": 60, "rain_mm": 12},
+    {"day": 4, "rain_prob": 80, "rain_mm": 25},
+    {"day": 5, "rain_prob": 70, "rain_mm": 18},
+    {"day": 6, "rain_prob": 40, "rain_mm": 6},
+    {"day": 7, "rain_prob": 20, "rain_mm": 2}
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  
+  "paddy": {
+    "type": "paddy",
+    "shelf_life_days": 180,
+    "yield_kg_per_acre": 1800,
+    "water_need": "high",
+    "duration_days": 105
+  },
+  "brinjal": {
+    "type": "vegetable",
+    "shelf_life_days": 5,
+    "yield_kg_per_acre": 4000,
+    "water_need": "medium",
+    "duration_days": 120
+  },
+  "long beans": {
+    "type": "vegetable",
+    "shelf_life_days": 3,
+    "yield_kg_per_acre": 3000,
+    "water_need": "medium",
+    "duration_days": 70
+  },
+  "chillies": {
+    "type": "vegetable",
+    "shelf_life_days": 6,
+    "yield_kg_per_acre": 2400,
+    "water_need": "low",
+    "duration_days": 110
+  },
+  "pumpkin": {
+    "type": "vegetable",
+    "shelf_life_days": 30,
+    "yield_kg_per_acre": 8000,
+    "water_need": "low",
+    "duration_days": 100
+  }
+}

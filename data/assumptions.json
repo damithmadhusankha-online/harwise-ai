@@ -1,0 +1,22 @@
+{
+  "_comment": "ROUGH PLACEHOLDER VALUES. Every number is an editable assumption. Replace with real local figures.",
+  "paddy": {
+    "standard_moisture_pct": 14,
+    "default_harvest_moisture_pct": 20,
+    "moisture_price_cut_pct_per_point": 1.5,
+    "drying_cost_per_kg_per_point": 0.35,
+    "trader_discount_pct": 4,
+    "pmb_transport_cost_per_kg": 2,
+    "storage_loss_pct_per_week": 0.5,
+    "storage_cost_per_kg_per_week": 0.6
+  },
+  "vegetable": {
+    "local_buyer_discount_pct": 10,
+    "dambulla_premium_pct": 8,
+    "dambulla_transport_cost_per_kg": 6,
+    "dambulla_transit_loss_pct": 3,
+    "spoilage_pct_at_end_of_shelf_life": 50
+  },
+  "rain_multiplier": {"low": 1.0, "medium": 1.25, "high": 1.5},
+  "interest_rate_pct_per_year": 12
+}
