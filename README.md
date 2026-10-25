@@ -10,15 +10,21 @@ sell, store, and plant across paddy and vegetable crops. All farm data stays on 
 
 ```bash
 # 1. Install Ollama from https://ollama.com, then pull a tool-calling model
-ollama pull qwen2.5:7b        # alternative: llama3.1:8b
+ollama pull qwen2.5:7b        # default model
+# Alternatives:
+ollama pull llama3.1:8b
+ollama pull llama3.2
 
 # 2. Python deps
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # 3. Run
-python main.py                 # or: python main.py --model llama3.1:8b
-```
+python main.py
+
+# Or run with an alternative model
+python main.py --model llama3.1:8b
+python main.py --model llama3.2
 
 Commands inside the chat: `reset` clears history, `quit` exits.
 
