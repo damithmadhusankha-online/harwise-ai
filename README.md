@@ -81,3 +81,4 @@ Write the function (return `{"ok": True/False, ...}`, validate inputs), then add
 | Damith Madhusankha | Agent loop, memory, CLI , Planning tools, Tests|
 | D.D.A.Nipun | Data layer, validation, price/weather ,messages, logging,|
 
+# harwise-ai
